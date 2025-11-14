@@ -128,6 +128,12 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="src\models\Machine.pas"/>
+        <DCCReference Include="src\interfaces\Movable.pas"/>
+        <DCCReference Include="src\interfaces\Liftable.pas"/>
+        <DCCReference Include="src\interfaces\Flyable.pas"/>
+        <DCCReference Include="src\interfaces\Diggable.pas"/>
+        <DCCReference Include="src\models\Track.pas"/>
+        <DCCReference Include="src\interfaces\MachineBase.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

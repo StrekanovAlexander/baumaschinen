@@ -2,9 +2,9 @@ unit Machine;
 
 interface
 
-uses System.SysUtils;
+uses System.SysUtils, MachineBase;
 
-type TMachine = class abstract
+type TMachine = class(TInterfacedObject, IMachine)
   private
     FBrand: string;
     FModel: string;
@@ -24,7 +24,6 @@ end;
 implementation
 
 constructor TMachine.Create(const ABrand: string; const AModel: string; const AVIN: string);
-var v: string;
 begin
   FBrand := Correct(ABrand);
   FModel := Correct(AModel);
