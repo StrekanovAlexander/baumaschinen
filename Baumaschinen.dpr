@@ -2,7 +2,8 @@ program Baumaschinen;
 
 uses
   Vcl.Forms,
-  MainForm in 'src\MainForm.pas' {FormMain};
+  MainForm in 'src\ui\MainForm.pas' {FormMain},
+  Machine in 'src\models\Machine.pas';
 
 {$R *.res}
 

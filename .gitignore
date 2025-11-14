@@ -1,4 +1,5 @@
 *.dcu
 *.~*
+*.dproj.local
 _history
 Win32/
