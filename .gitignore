@@ -1,0 +1,4 @@
+*.dcu
+*.~*
+_history
+Win32/
