@@ -6,6 +6,7 @@ uses System.SysUtils, MachineBase, MachineKind;
 
 type TMachine = class abstract (TInterfacedObject, IMachine)
   private
+    FID: Integer;
     FBrand: string;
     FModel: string;
     FVIN: string;
@@ -15,11 +16,13 @@ type TMachine = class abstract (TInterfacedObject, IMachine)
     procedure SetVIN(const AVIN: string);
     function Correct(const AValue: string): string;
   public
-    constructor Create(const ABrand: string; const AModel: string; const AVIN: string; AMachineKind: TMachineKind);
+    constructor Create(const ABrand: string; const AModel: string; const AVIN: string; AMachineKind: TMachineKind); overload;
+    constructor Create(AID: Integer; const ABrand: string; const AModel: string; const AVIN: string; AMachineKind: TMachineKind); overload;
+    property ID: Integer read FID write FID;
     property Brand: string read FBrand write SetBrand;
     property Model: string read FModel write SetModel;
     property VIN: string read FVIN write SetVIN;
-    property MachineKind: TMachineKind read FMachineKind;
+    property MachineKind: TMachineKind read FMachineKind write FMachineKind;
 
 end;
 
@@ -27,6 +30,16 @@ implementation
 
 constructor TMachine.Create(const ABrand: string; const AModel: string; const AVIN: string; AMachineKind: TMachineKind);
 begin
+  FID := 0;
+  FBrand := Correct(ABrand);
+  FModel := Correct(AModel);
+  FVIN := Correct(AVIN);
+  FMachineKind := AMachineKind;
+end;
+
+constructor TMachine.Create(AID: Integer; const ABrand: string; const AModel: string; const AVIN: string; AMachineKind: TMachineKind);
+begin
+  FID := AID;
   FBrand := Correct(ABrand);
   FModel := Correct(AModel);
   FVIN := Correct(AVIN);

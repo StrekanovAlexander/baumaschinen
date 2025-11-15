@@ -22,6 +22,7 @@ type
     procedure InitializeDatabase;
   public
     procedure InsertMachine(AMachine: TMachine);
+    procedure UpdateMachine(AMachine: TMachine);
     function GetMachines: TList<TMachine>;
   end;
 
@@ -52,16 +53,44 @@ procedure TDM.InsertMachine(AMachine: TMachine);
 begin
   with FDQueryExec do
   begin
-    Close;
-    SQL.Text := 'INSERT INTO machines (brand, model, vin, machine_kind) ' +
-                'VALUES (:brand, :model, :vin, :machine_kind)';
-    ParamByName('brand').AsString := AMachine.Brand;
-    ParamByName('model').AsString := AMachine.Model;
-    ParamByName('vin').AsString := AMachine.VIN;
-    ParamByName('kind').AsInteger := Ord(AMachine.MachineKind);
-    ExecSQL;
+    FDQueryExec.Close;
+    FDQueryExec.SQL.Text :=
+      'INSERT INTO machines (brand, model, vin, machine_kind) ' +
+      'VALUES (:brand, :model, :vin, :machine_kind) ' +
+      'RETURNING id';
+
+    FDQueryExec.ParamByName('brand').AsString := AMachine.Brand;
+    FDQueryExec.ParamByName('model').AsString := AMachine.Model;
+    FDQueryExec.ParamByName('vin').AsString := AMachine.VIN;
+    FDQueryExec.ParamByName('machine_kind').AsInteger := Ord(AMachine.MachineKind);
+    FDQueryExec.Open;
+
+    AMachine.ID := FDQueryExec.FieldByName('id').AsInteger;
   end;
 end;
+
+procedure TDM.UpdateMachine(AMachine: TMachine);
+begin
+  with FDQueryExec do
+    begin
+      Close;
+      SQL.Text :=
+        'UPDATE machines SET ' +
+        'brand = :brand, ' +
+        'model = :model, ' +
+        'vin = :vin, ' +
+        'machine_kind = :machine_kind ' +
+        'WHERE id = :id';
+
+        ParamByName('id').AsInteger := AMachine.ID;
+        ParamByName('brand').AsString := AMachine.Brand;
+        ParamByName('model').AsString := AMachine.Model;
+        ParamByName('vin').AsString := AMachine.VIN;
+        ParamByName('machine_kind').AsInteger := Ord(AMachine.MachineKind);
+        ExecSQL;
+    end;
+end;
+
 
 function TDM.GetMachines: TList<TMachine>;
 var
@@ -70,7 +99,7 @@ var
 begin
   Machines := TList<TMachine>.Create;
   FDQuerySelect.Close;
-  FDQuerySelect.SQL.Text := 'SELECT brand, model, vin, machine_kind FROM machines';
+  FDQuerySelect.SQL.Text := 'SELECT id, brand, model, vin, machine_kind FROM machines';
   FDQuerySelect.Open;
 
   while not FDQuerySelect.Eof do
@@ -80,6 +109,7 @@ begin
       case MachineKind of
         mkTruck:
           Machines.Add(TTruck.Create(
+            FDQuerySelect.FieldByName('id').AsInteger,
             FDQuerySelect.FieldByName('brand').AsString,
             FDQuerySelect.FieldByName('model').AsString,
             FDQuerySelect.FieldByName('vin').AsString
@@ -87,6 +117,7 @@ begin
 
         mkCrane:
           Machines.Add(TCrane.Create(
+            FDQuerySelect.FieldByName('id').AsInteger,
             FDQuerySelect.FieldByName('brand').AsString,
             FDQuerySelect.FieldByName('model').AsString,
             FDQuerySelect.FieldByName('vin').AsString
@@ -94,6 +125,7 @@ begin
 
         mkExcavator:
           Machines.Add(TExcavator.Create(
+            FDQuerySelect.FieldByName('id').AsInteger,
             FDQuerySelect.FieldByName('brand').AsString,
             FDQuerySelect.FieldByName('model').AsString,
             FDQuerySelect.FieldByName('vin').AsString
@@ -101,6 +133,7 @@ begin
 
         mkHelicopter:
           Machines.Add(THelicopter.Create(
+            FDQuerySelect.FieldByName('id').AsInteger,
             FDQuerySelect.FieldByName('brand').AsString,
             FDQuerySelect.FieldByName('model').AsString,
             FDQuerySelect.FieldByName('vin').AsString

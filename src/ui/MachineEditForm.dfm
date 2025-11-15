@@ -13,6 +13,7 @@ object FormMachineEdit: TFormMachineEdit
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
+  OnCreate = FormCreate
   TextHeight = 15
   object LabelBrand: TLabel
     Left = 12

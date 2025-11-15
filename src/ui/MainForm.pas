@@ -15,8 +15,10 @@ type
     ButtonDelete: TButton;
     procedure ButtonAddClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure ListBoxMachinesClick(Sender: TObject);
+    procedure ButtonEditClick(Sender: TObject);
   private
-    { Private declarations }
+    procedure UpdateMachinesButtonsState;
   public
     { Public declarations }
   end;
@@ -28,6 +30,14 @@ implementation
   uses DataModule, Machine, MachineEditForm;
 
 {$R *.dfm}
+
+procedure TFormMain.UpdateMachinesButtonsState;
+var i: Integer;
+begin
+  i := ListBoxMachines.ItemIndex;
+  ButtonEdit.Enabled := i <> -1;
+  ButtonDelete.Enabled := i <> -1;
+end;
 
 procedure TFormMain.ButtonAddClick(Sender: TObject);
 var
@@ -41,7 +51,34 @@ begin
       begin
         NewMachine := FormCreateMachine.Machine;
         DM.InsertMachine(NewMachine);
-        ListBoxMachines.Items.Add(NewMachine.Brand + ' ' + NewMachine.Model + ' ' + NewMachine.VIN);
+        ListBoxMachines.Items.AddObject(
+          NewMachine.Brand + ' ' + NewMachine.Model + ' ' + NewMachine.VIN, NewMachine
+        );
+        ShowMessage(IntToStr(NewMachine.ID));
+      end;
+  finally
+    FormCreateMachine.Free;
+  end;
+
+end;
+
+procedure TFormMain.ButtonEditClick(Sender: TObject);
+var
+  FormCreateMachine: TFormMachineEdit;
+  Machine: TMachine;
+begin
+  if ListBoxMachines.ItemIndex = -1 then
+    Exit;
+
+  Machine := TMachine(ListBoxMachines.Items.Objects[ListBoxMachines.ItemIndex]);
+  FormCreateMachine := TFormMachineEdit.Create(Self, Machine);
+
+  try
+    if FormCreateMachine.ShowModal = mrOk then
+      begin
+        DM.UpdateMachine(Machine);
+        ListBoxMachines.Items[ListBoxMachines.ItemIndex] :=
+          Machine.Brand + ' ' + Machine.Model + ' ' + Machine.VIN;
       end;
   finally
     FormCreateMachine.Free;
@@ -58,11 +95,19 @@ begin
   try
     ListBoxMachines.Items.Clear;
     for Machine in Machines do
-      ListBoxMachines.Items.Add(Machine.Brand + ' ' + Machine.Model + ' ' + Machine.VIN);
+      ListBoxMachines.Items.AddObject(
+        Machine.Brand + ' ' + Machine.Model + ' ' + Machine.VIN,
+        Machine
+      );
   finally
     Machines.Free;
   end;
+  UpdateMachinesButtonsState;
+end;
 
+procedure TFormMain.ListBoxMachinesClick(Sender: TObject);
+begin
+  UpdateMachinesButtonsState;
 end;
 
 end.

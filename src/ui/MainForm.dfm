@@ -34,6 +34,7 @@ object FormMain: TFormMain
       Align = alTop
       ItemHeight = 15
       TabOrder = 0
+      OnClick = ListBoxMachinesClick
     end
     object ButtonAdd: TButton
       Left = 9
@@ -51,6 +52,7 @@ object FormMain: TFormMain
       Height = 25
       Caption = 'Bearbeiten'
       TabOrder = 2
+      OnClick = ButtonEditClick
     end
     object ButtonDelete: TButton
       Left = 187

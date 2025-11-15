@@ -6,7 +6,8 @@ uses Machine, MachineKind, Diggable, Movable;
 
 type TExcavator = class(TMachine, IDiggable, IMovable)
   public
-    constructor Create(const ABrand: string; const AModel: string; const AVIN: string);
+    constructor Create(const ABrand: string; const AModel: string; const AVIN: string); overload;
+    constructor Create(AID: Integer; const ABrand: string; const AModel: string; const AVIN: string); overload;
     function Dig: string;
     function Move: string;
 end;
@@ -16,6 +17,11 @@ implementation
 constructor TExcavator.Create(const ABrand: string; const AModel: string; const AVIN: string);
 begin
   inherited Create(ABrand, AModel, AVIN, mkExcavator);
+end;
+
+constructor TExcavator.Create(AID: Integer; const ABrand: string; const AModel: string; const AVIN: string);
+begin
+  inherited Create(AID, ABrand, AModel, AVIN, mkExcavator);
 end;
 
 function TExcavator.Dig: string;
