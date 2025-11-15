@@ -132,7 +132,7 @@
         <DCCReference Include="src\interfaces\Liftable.pas"/>
         <DCCReference Include="src\interfaces\Flyable.pas"/>
         <DCCReference Include="src\interfaces\Diggable.pas"/>
-        <DCCReference Include="src\models\Track.pas"/>
+        <DCCReference Include="src\models\Truck.pas"/>
         <DCCReference Include="src\interfaces\MachineBase.pas"/>
         <DCCReference Include="src\models\MachineKind.pas"/>
         <DCCReference Include="src\data\DataModule.pas">
@@ -140,6 +140,14 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="src\ui\MachineEditForm.pas">
+            <Form>FormMachineEdit</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\models\Crane.pas"/>
+        <DCCReference Include="src\models\Excavator.pas"/>
+        <DCCReference Include="src\models\Helicopter.pas"/>
+        <DCCReference Include="src\factories\MachineFactory.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

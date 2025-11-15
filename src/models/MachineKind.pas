@@ -2,7 +2,7 @@ unit MachineKind;
 
 interface
 
-type TMachineKind = (mkTrack, mkCrane, mkExcavator, mkHelicopter);
+type TMachineKind = (mkTruck, mkCrane, mkExcavator, mkHelicopter);
 
 implementation
 

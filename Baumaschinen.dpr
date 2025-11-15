@@ -8,17 +8,22 @@ uses
   Liftable in 'src\interfaces\Liftable.pas',
   Flyable in 'src\interfaces\Flyable.pas',
   Diggable in 'src\interfaces\Diggable.pas',
-  Track in 'src\models\Track.pas',
+  Truck in 'src\models\Truck.pas',
   MachineBase in 'src\interfaces\MachineBase.pas',
   MachineKind in 'src\models\MachineKind.pas',
-  DataModule in 'src\data\DataModule.pas' {DM: TDataModule};
+  DataModule in 'src\data\DataModule.pas' {DM: TDataModule},
+  MachineEditForm in 'src\ui\MachineEditForm.pas' {FormMachineEdit},
+  Crane in 'src\models\Crane.pas',
+  Excavator in 'src\models\Excavator.pas',
+  Helicopter in 'src\models\Helicopter.pas',
+  MachineFactory in 'src\factories\MachineFactory.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TFormMain, FormMain);
   Application.CreateForm(TDM, DM);
+  Application.CreateForm(TFormMain, FormMain);
   Application.Run;
 end.

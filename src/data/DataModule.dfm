@@ -11,7 +11,17 @@ object DM: TDM
       
         'Database=D:\dev\delphi\delphi13\Training\Baumas'#1089'hinen\Win32\Debu' +
         'g\data.db')
-    Left = 552
+    Left = 40
     Top = 16
+  end
+  object FDQueryExec: TFDQuery
+    Connection = FDConnection1
+    Left = 40
+    Top = 72
+  end
+  object FDQuerySelect: TFDQuery
+    Connection = FDConnection1
+    Left = 40
+    Top = 136
   end
 end

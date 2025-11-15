@@ -8,16 +8,21 @@ uses
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
   FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, Data.DB,
-  FireDAC.Comp.Client, Vcl.Forms, System.IOUtils;
+  FireDAC.Comp.Client, Vcl.Forms, System.IOUtils, FireDAC.Stan.Param,
+  FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet,
+  System.Generics.Collections, Machine, MachineKind, Truck, Crane, Excavator, Helicopter;
 
 type
   TDM = class(TDataModule)
     FDConnection1: TFDConnection;
+    FDQueryExec: TFDQuery;
+    FDQuerySelect: TFDQuery;
     procedure DataModuleCreate(Sender: TObject);
   private
     procedure InitializeDatabase;
   public
-    { Public declarations }
+    procedure InsertMachine(AMachine: TMachine);
+    function GetMachines: TList<TMachine>;
   end;
 
 var
@@ -41,6 +46,71 @@ begin
     'machine_kind INTEGER NOT NULL)'
   );
   FDConnection1.Close;
+end;
+
+procedure TDM.InsertMachine(AMachine: TMachine);
+begin
+  with FDQueryExec do
+  begin
+    Close;
+    SQL.Text := 'INSERT INTO machines (brand, model, vin, machine_kind) ' +
+                'VALUES (:brand, :model, :vin, :machine_kind)';
+    ParamByName('brand').AsString := AMachine.Brand;
+    ParamByName('model').AsString := AMachine.Model;
+    ParamByName('vin').AsString := AMachine.VIN;
+    ParamByName('kind').AsInteger := Ord(AMachine.MachineKind);
+    ExecSQL;
+  end;
+end;
+
+function TDM.GetMachines: TList<TMachine>;
+var
+  MachineKind: TMachineKind;
+  Machines: TList<TMachine>;
+begin
+  Machines := TList<TMachine>.Create;
+  FDQuerySelect.Close;
+  FDQuerySelect.SQL.Text := 'SELECT brand, model, vin, machine_kind FROM machines';
+  FDQuerySelect.Open;
+
+  while not FDQuerySelect.Eof do
+    begin
+      MachineKind := TMachineKind(FDQuerySelect.FieldByName('machine_kind').AsInteger);
+
+      case MachineKind of
+        mkTruck:
+          Machines.Add(TTruck.Create(
+            FDQuerySelect.FieldByName('brand').AsString,
+            FDQuerySelect.FieldByName('model').AsString,
+            FDQuerySelect.FieldByName('vin').AsString
+          ));
+
+        mkCrane:
+          Machines.Add(TCrane.Create(
+            FDQuerySelect.FieldByName('brand').AsString,
+            FDQuerySelect.FieldByName('model').AsString,
+            FDQuerySelect.FieldByName('vin').AsString
+          ));
+
+        mkExcavator:
+          Machines.Add(TExcavator.Create(
+            FDQuerySelect.FieldByName('brand').AsString,
+            FDQuerySelect.FieldByName('model').AsString,
+            FDQuerySelect.FieldByName('vin').AsString
+          ));
+
+        mkHelicopter:
+          Machines.Add(THelicopter.Create(
+            FDQuerySelect.FieldByName('brand').AsString,
+            FDQuerySelect.FieldByName('model').AsString,
+            FDQuerySelect.FieldByName('vin').AsString
+          ));
+      end;
+
+      FDQuerySelect.Next;
+    end;
+
+  Result := Machines;
 end;
 
 procedure TDM.DataModuleCreate(Sender: TObject);
