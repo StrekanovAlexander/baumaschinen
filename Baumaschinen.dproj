@@ -148,6 +148,7 @@
         <DCCReference Include="src\models\Excavator.pas"/>
         <DCCReference Include="src\models\Helicopter.pas"/>
         <DCCReference Include="src\factories\MachineFactory.pas"/>
+        <DCCReference Include="src\models\Weather.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -16,7 +16,8 @@ uses
   Crane in 'src\models\Crane.pas',
   Excavator in 'src\models\Excavator.pas',
   Helicopter in 'src\models\Helicopter.pas',
-  MachineFactory in 'src\factories\MachineFactory.pas';
+  MachineFactory in 'src\factories\MachineFactory.pas',
+  Weather in 'src\models\Weather.pas';
 
 {$R *.res}
 

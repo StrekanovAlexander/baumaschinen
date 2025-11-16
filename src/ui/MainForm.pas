@@ -5,8 +5,9 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, System.Generics.Collections,
-  System.UITypes, DataModule, Machine, MachineKind, Truck, Excavator, Crane, Helicopter,
-  Movable, Liftable, Diggable, Flyable, MachineFactory;
+  System.UITypes, System.Net.HttpClientComponent, System.JSON,
+  DataModule, Machine, MachineKind, Truck, Excavator, Crane, Helicopter,
+  Movable, Liftable, Diggable, Flyable, MachineFactory, Weather;
 
 type
   TFormMain = class(TForm)
@@ -14,20 +15,32 @@ type
     PanelDetails: TPanel;
     PanelMachines: TPanel;
     ListBoxMachines: TListBox;
+    PanelMachinesButtons: TPanel;
     ButtonAdd: TButton;
     ButtonEdit: TButton;
     ButtonDelete: TButton;
+    PanelWeather: TPanel;
+    SplitterPanels: TSplitter;
+    PanelWeatherButtons: TPanel;
+    ButtonRefresh: TButton;
+    MemoWeather: TMemo;
     procedure ButtonAddClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ListBoxMachinesClick(Sender: TObject);
     procedure ButtonEditClick(Sender: TObject);
     procedure ButtonDeleteClick(Sender: TObject);
+    procedure ButtonRefreshClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
+    Weather: TWeather;
     procedure UpdateMachinesButtonsState;
     procedure ShowMachineDetails(AMachine: TMachine);
   public
     { Public declarations }
   end;
+
+const
+  URL = 'https://api.open-meteo.com/v1/forecast?latitude=52.5200&longitude=13.4050&current_weather=true';
 
 var
   FormMain: TFormMain;
@@ -109,6 +122,15 @@ begin
 
 end;
 
+procedure TFormMain.ButtonRefreshClick(Sender: TObject);
+begin
+  MemoWeather.Lines.Clear;
+  if Assigned(Weather) then
+    Weather.Free;
+  Weather := TWeather.Create(URL);
+  MemoWeather.Lines.Add(Weather.ToBreakString);
+end;
+
 procedure TFormMain.FormCreate(Sender: TObject);
 var
   Machines: TList<TMachine>;
@@ -124,6 +146,15 @@ begin
     Machines.Free;
   end;
   UpdateMachinesButtonsState;
+
+  Weather := TWeather.Create(URL);
+  MemoWeather.Lines.Add(Weather.ToBreakString);
+
+end;
+
+procedure TFormMain.FormDestroy(Sender: TObject);
+begin
+  Weather.Free;
 end;
 
 procedure TFormMain.ListBoxMachinesClick(Sender: TObject);
