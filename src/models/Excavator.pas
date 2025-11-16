@@ -26,12 +26,12 @@ end;
 
 function TExcavator.Dig: string;
 begin
-  Result := 'Excavator: ' + Brand + ' ' + Model + ' is digging...';
+  Result := 'Das Fahrzeug kann graben';
 end;
 
 function TExcavator.Move: string;
 begin
-  Result := 'Excavator: ' + Brand + ' ' + Model + ' is moving...';
+  Result := 'Das Fahrzeug kann langsam bewegen';
 end;
 
 end.

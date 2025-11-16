@@ -2,4 +2,7 @@
 *.~*
 *.dproj.local
 _history
-Win32/
+Win32/*
+!Win32/Debug/
+Win32/Debug/*
+!Win32/Debug/data.db

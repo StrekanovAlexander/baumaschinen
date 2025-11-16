@@ -26,7 +26,7 @@ end;
 
 function TTruck.Move: string;
 begin
-  Result := 'Track: ' + Brand + ' ' + Model + ' is moving';
+  Result := 'Das Fahrzeug kann schnell bewegen';
 end;
 
 end.

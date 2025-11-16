@@ -25,7 +25,7 @@ end;
 
 function THelicopter.Fly: string;
 begin
-  Result := 'Helicopter: ' + Brand + ' ' + Model + ' flying...';
+  Result := 'Das Fahrzeug kann fliegen.';
 end;
 
 end.

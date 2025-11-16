@@ -25,7 +25,7 @@ end;
 
 function TCrane.Lift: string;
 begin
-  Result := 'Crane: ' + Brand + ' ' + Model + ' lifing...';
+  Result := 'Das Fahrzeug kann schwere Lasten heben';
 end;
 
 end.

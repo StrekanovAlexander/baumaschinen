@@ -1,14 +1,18 @@
-unit MainForm;
+﻿unit MainForm;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, System.Generics.Collections;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, System.Generics.Collections,
+  System.UITypes, DataModule, Machine, MachineKind, Truck, Excavator, Crane, Helicopter,
+  Movable, Liftable, Diggable, Flyable, MachineFactory;
 
 type
   TFormMain = class(TForm)
     PanelLeft: TPanel;
+    PanelDetails: TPanel;
+    PanelMachines: TPanel;
     ListBoxMachines: TListBox;
     ButtonAdd: TButton;
     ButtonEdit: TButton;
@@ -17,8 +21,10 @@ type
     procedure FormCreate(Sender: TObject);
     procedure ListBoxMachinesClick(Sender: TObject);
     procedure ButtonEditClick(Sender: TObject);
+    procedure ButtonDeleteClick(Sender: TObject);
   private
     procedure UpdateMachinesButtonsState;
+    procedure ShowMachineDetails(AMachine: TMachine);
   public
     { Public declarations }
   end;
@@ -27,7 +33,8 @@ var
   FormMain: TFormMain;
 
 implementation
-  uses DataModule, Machine, MachineEditForm;
+  uses MachineEditForm;
+
 
 {$R *.dfm}
 
@@ -51,14 +58,30 @@ begin
       begin
         NewMachine := FormCreateMachine.Machine;
         DM.InsertMachine(NewMachine);
-        ListBoxMachines.Items.AddObject(
-          NewMachine.Brand + ' ' + NewMachine.Model + ' ' + NewMachine.VIN, NewMachine
-        );
-        ShowMessage(IntToStr(NewMachine.ID));
+        ListBoxMachines.Items.AddObject(NewMachine.KindText + ' ' + NewMachine.Brand + ' ' + NewMachine.Model, NewMachine);
       end;
   finally
     FormCreateMachine.Free;
   end;
+
+end;
+
+procedure TFormMain.ButtonDeleteClick(Sender: TObject);
+var Machine: TMachine;
+begin
+  if ListBoxMachines.ItemIndex = -1 then
+    Exit;
+
+  Machine := TMachine(ListBoxMachines.Items.Objects[ListBoxMachines.ItemIndex]);
+
+  if MessageDlg('Möchten Sie die Maschine "' + Machine.Brand + ' ' + Machine.Model + '" löschen?',
+      mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  DM.DeleteMachine(Machine.ID);
+  Machine.Free;
+
+  ListBoxMachines.Items.Delete(ListBoxMachines.ItemIndex);
 
 end;
 
@@ -78,7 +101,7 @@ begin
       begin
         DM.UpdateMachine(Machine);
         ListBoxMachines.Items[ListBoxMachines.ItemIndex] :=
-          Machine.Brand + ' ' + Machine.Model + ' ' + Machine.VIN;
+        Machine.KindText + ' ' + Machine.Brand + ' ' + Machine.Model;
       end;
   finally
     FormCreateMachine.Free;
@@ -96,9 +119,7 @@ begin
     ListBoxMachines.Items.Clear;
     for Machine in Machines do
       ListBoxMachines.Items.AddObject(
-        Machine.Brand + ' ' + Machine.Model + ' ' + Machine.VIN,
-        Machine
-      );
+        Machine.KindText + ': ' + Machine.Brand + ' ' + Machine.Model, Machine);
   finally
     Machines.Free;
   end;
@@ -106,8 +127,54 @@ begin
 end;
 
 procedure TFormMain.ListBoxMachinesClick(Sender: TObject);
+var Machine: TMachine;
 begin
   UpdateMachinesButtonsState;
+
+  if ListBoxMachines.ItemIndex = -1 then Exit;
+
+  Machine := TMachine(ListBoxMachines.Items.Objects[ListBoxMachines.ItemIndex]);
+
+  if Assigned(Machine) then
+    ShowMachineDetails(Machine);
+end;
+
+procedure TFormMain.ShowMachineDetails(AMachine: TMachine);
+var Memo: TMemo;
+    Machine: TMachine;
+    Movable: IMovable;
+    Diggable: IDiggable;
+    Liftable: ILiftable;
+    Flyable: IFlyable;
+begin
+  PanelDetails.DestroyComponents;
+  Machine := TMachineFactory.CreateCopy(AMachine);
+
+  Memo := TMemo.Create(PanelDetails);
+  Memo.Parent := PanelDetails;
+  Memo.Align := alTop;
+
+  Memo.ReadOnly := True;
+  Memo.Font.Name := 'Consolas';
+  Memo.Height := 125;
+
+  Memo.Lines.Add(Machine.KindText);
+  Memo.Lines.Add('Brand:' + #9 + Machine.Brand);
+  Memo.Lines.Add('Model:' + #9 + Machine.Model);
+  Memo.Lines.Add('VIN:' + #9 + Machine.VIN);
+
+  if Supports(Machine, IMovable, Movable) then
+    Memo.Lines.Add(Movable.Move);
+
+  if Supports(Machine, IDiggable, Diggable) then
+    Memo.Lines.Add(Diggable.Dig);
+
+  if Supports(Machine, ILiftable, Liftable) then
+    Memo.Lines.Add(Liftable.Lift);
+
+  if Supports(Machine, IFlyable, Flyable) then
+    Memo.Lines.Add(Flyable.Fly);
+
 end;
 
 end.

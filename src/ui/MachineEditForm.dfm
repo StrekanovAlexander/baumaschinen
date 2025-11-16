@@ -49,7 +49,6 @@ object FormMachineEdit: TFormMachineEdit
     Width = 300
     Height = 23
     TabOrder = 0
-    Text = 'Volkswagen'
   end
   object EditModel: TEdit
     Left = 62
@@ -57,7 +56,6 @@ object FormMachineEdit: TFormMachineEdit
     Width = 300
     Height = 23
     TabOrder = 1
-    Text = 'VW-12345'
   end
   object EditVIN: TEdit
     Left = 62
@@ -65,7 +63,6 @@ object FormMachineEdit: TFormMachineEdit
     Width = 300
     Height = 23
     TabOrder = 2
-    Text = '12345678901234567'
   end
   object ComboBoxMachineKind: TComboBox
     Left = 63

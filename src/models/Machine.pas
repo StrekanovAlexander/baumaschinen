@@ -14,6 +14,7 @@ type TMachine = class abstract (TInterfacedObject, IMachine)
     procedure SetBrand(const ABrand: string);
     procedure SetModel(const AModel: string);
     procedure SetVIN(const AVIN: string);
+    function GetKindText: string; virtual;
     function Correct(const AValue: string): string;
   public
     constructor Create(const ABrand: string; const AModel: string; const AVIN: string; AMachineKind: TMachineKind); overload;
@@ -23,6 +24,7 @@ type TMachine = class abstract (TInterfacedObject, IMachine)
     property Model: string read FModel write SetModel;
     property VIN: string read FVIN write SetVIN;
     property MachineKind: TMachineKind read FMachineKind write FMachineKind;
+    property KindText: string read GetKindText;
 
 end;
 
@@ -69,6 +71,16 @@ end;
 procedure TMachine.SetVIN(const AVIN: string);
 begin
   FVIN := Correct(AVIN);
+end;
+
+function TMachine.GetKindText: string;
+begin
+  case FMachineKind of
+    mkTruck:      Result := 'LKW';
+    mkCrane:      Result := 'Kran';
+    mkExcavator:  Result := 'Bagger';
+    mkHelicopter: Result := 'Helikopter';
+  end;
 end;
 
 end.

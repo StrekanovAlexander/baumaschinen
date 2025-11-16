@@ -10,7 +10,8 @@ uses
   FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, Data.DB,
   FireDAC.Comp.Client, Vcl.Forms, System.IOUtils, FireDAC.Stan.Param,
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet,
-  System.Generics.Collections, Machine, MachineKind, Truck, Crane, Excavator, Helicopter;
+  System.Generics.Collections, Machine, MachineBase, MachineKind, Truck, Crane,
+  Excavator, Helicopter;
 
 type
   TDM = class(TDataModule)
@@ -23,6 +24,7 @@ type
   public
     procedure InsertMachine(AMachine: TMachine);
     procedure UpdateMachine(AMachine: TMachine);
+    procedure DeleteMachine(AID: Integer);
     function GetMachines: TList<TMachine>;
   end;
 
@@ -165,6 +167,17 @@ begin
     end;
 
   InitializeDatabase;
+end;
+
+procedure TDM.DeleteMachine(AID: Integer);
+begin
+  with FDQueryExec do
+    begin
+      Close;
+      SQL.Text := 'DELETE FROM machines WHERE id = :id';
+      ParamByName('id').AsInteger := AID;
+      ExecSQL;
+    end;
 end;
 
 end.
