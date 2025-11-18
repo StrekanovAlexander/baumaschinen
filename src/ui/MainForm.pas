@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, System.Generics.Collections,
   System.UITypes, System.Net.HttpClientComponent, System.JSON,
   DataModule, Machine, MachineKind, Truck, Excavator, Crane, Helicopter,
-  Movable, Liftable, Diggable, Flyable, MachineFactory, Weather;
+  Movable, Liftable, Diggable, Flyable, MachineFactory, Weather, City;
 
 type
   TFormMain = class(TForm)
@@ -21,16 +21,16 @@ type
     ButtonDelete: TButton;
     PanelWeather: TPanel;
     SplitterPanels: TSplitter;
-    PanelWeatherButtons: TPanel;
-    ButtonRefresh: TButton;
     MemoWeather: TMemo;
+    PanelCity: TPanel;
+    ComboBoxCities: TComboBox;
     procedure ButtonAddClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ListBoxMachinesClick(Sender: TObject);
     procedure ButtonEditClick(Sender: TObject);
     procedure ButtonDeleteClick(Sender: TObject);
-    procedure ButtonRefreshClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure ComboBoxCitiesChange(Sender: TObject);
   private
     Weather: TWeather;
     procedure UpdateMachinesButtonsState;
@@ -47,7 +47,6 @@ var
 
 implementation
   uses MachineEditForm;
-
 
 {$R *.dfm}
 
@@ -122,12 +121,17 @@ begin
 
 end;
 
-procedure TFormMain.ButtonRefreshClick(Sender: TObject);
+procedure TFormMain.ComboBoxCitiesChange(Sender: TObject);
+var
+  City: TCity;
 begin
+  if ComboBoxCities.ItemIndex = -1 then Exit;
+  City := TCity(ComboBoxCities.Items.Objects[ComboBoxCities.ItemIndex]);
+
+  Weather.Free;
+  Weather := TWeather.Create(City);
+
   MemoWeather.Lines.Clear;
-  if Assigned(Weather) then
-    Weather.Free;
-  Weather := TWeather.Create(URL);
   MemoWeather.Lines.Add(Weather.ToBreakString);
 end;
 
@@ -135,6 +139,8 @@ procedure TFormMain.FormCreate(Sender: TObject);
 var
   Machines: TList<TMachine>;
   Machine: TMachine;
+  Cities: TList<TCity>;
+  City: TCity;
 begin
   Machines := DM.GetMachines;
   try
@@ -147,13 +153,29 @@ begin
   end;
   UpdateMachinesButtonsState;
 
-  Weather := TWeather.Create(URL);
-  MemoWeather.Lines.Add(Weather.ToBreakString);
+  Cities := DM.GetCities;
+  try
+    ComboBoxCities.Items.Clear;
+    for City in Cities do
+      ComboBoxCities.Items.AddObject(City.ToString, City);
+  finally
+    Cities.Free;
+  end;
 
+  if ComboBoxCities.Items.Count > 0 then
+    begin
+      ComboBoxCities.ItemIndex := 0;
+      City := TCity(ComboBoxCities.Items.Objects[0]);
+      Weather := TWeather.Create(City);
+      MemoWeather.Lines.Add(Weather.ToBreakString);
+    end;
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
+var i: Integer;
 begin
+  for i := 0 to ComboBoxCities.Items.Count - 1 do
+    TObject(ComboBoxCities.Items.Objects[i]).Free;
   Weather.Free;
 end;
 

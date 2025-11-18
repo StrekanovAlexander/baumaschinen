@@ -2,7 +2,7 @@ unit Weather;
 
 interface
 
-uses System.SysUtils, System.Net.HttpClientComponent, System.JSON;
+uses System.SysUtils, System.Net.HttpClientComponent, System.JSON, City;
 
 type TWeather = class
   private
@@ -12,7 +12,7 @@ type TWeather = class
     FWindDirection: Double;
     procedure ParseAndAssign(const JSONText: string);
   public
-    constructor Create(const URL: string);
+    constructor Create(ACity: TCity);
     property Time: string read FTime write FTime;
     property Temperature: Double read FTemperature write FTemperature;
     property WindSpeed: Double read FWindSpeed write FWindSpeed;
@@ -23,11 +23,18 @@ end;
 
 implementation
 
-constructor TWeather.Create(const URL: string);
+constructor TWeather.Create(ACity: TCity);
 var HttpClient: TNetHTTPClient;
-    Response: string;
+    URL, Response: string;
 begin
+  inherited Create;
+
   HttpClient := TNetHTTPClient.Create(nil);
+  URL := Format(
+    'https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&current_weather=true',
+    [ACity.Latitude, ACity.Longitude]
+  );
+
   try
     Response := HttpClient.Get(URL).ContentAsString;
     ParseAndAssign(Response);

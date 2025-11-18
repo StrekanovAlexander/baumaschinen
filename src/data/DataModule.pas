@@ -1,4 +1,4 @@
-unit DataModule;
+﻿unit DataModule;
 
 interface
 
@@ -11,7 +11,7 @@ uses
   FireDAC.Comp.Client, Vcl.Forms, System.IOUtils, FireDAC.Stan.Param,
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet,
   System.Generics.Collections, Machine, MachineBase, MachineKind, Truck, Crane,
-  Excavator, Helicopter;
+  Excavator, Helicopter, City;
 
 type
   TDM = class(TDataModule)
@@ -19,6 +19,7 @@ type
     FDQueryExec: TFDQuery;
     FDQuerySelect: TFDQuery;
     procedure DataModuleCreate(Sender: TObject);
+    function GetCitiesCount: Integer;
   private
     procedure InitializeDatabase;
   public
@@ -26,7 +27,42 @@ type
     procedure UpdateMachine(AMachine: TMachine);
     procedure DeleteMachine(AID: Integer);
     function GetMachines: TList<TMachine>;
+    function GetCities: TList<TCity>;
   end;
+
+const SQLInitMachines =
+  'CREATE TABLE IF NOT EXISTS machines (' +
+  'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+  'brand TEXT NOT NULL, ' +
+  'model TEXT NOT NULL, ' +
+  'vin TEXT NOT NULL, ' +
+  'machine_kind INTEGER NOT NULL);';
+
+const SQLInitCities =
+  'CREATE TABLE IF NOT EXISTS cities (' +
+  'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+  'city TEXT NOT NULL, ' +
+  'latitude REAL NOT NULL, ' +
+  'longitude REAL NOT NULL);';
+
+const SQLInsertCities =
+  'INSERT INTO cities (city, latitude, longitude) VALUES ' +
+  '("Stuttgart", 48.7758, 9.1829),' +
+  '("München", 48.1351, 11.5820),' +
+  '("Berlin", 52.5200, 13.4050),' +
+  '("Potsdam", 52.3906, 13.0645),' +
+  '("Bremen", 53.0793, 8.8017),' +
+  '("Hamburg", 53.5511, 9.9937),' +
+  '("Wiesbaden", 50.0826, 8.2400),' +
+  '("Schwerin", 53.6294, 11.4132),' +
+  '("Hannover", 52.3759, 9.7320),' +
+  '("Düsseldorf", 51.2277, 6.7735),' +
+  '("Mainz", 49.9929, 8.2473),' +
+  '("Saarbrücken", 49.2402, 6.9969),' +
+  '("Dresden", 51.0504, 13.7373),' +
+  '("Magdeburg", 52.1205, 11.6276),' +
+  '("Kiel", 54.3233, 10.1228),' +
+  '("Erfurt", 50.9848, 11.0299);';
 
 var
   DM: TDM;
@@ -37,18 +73,22 @@ implementation
 
 {$R *.dfm}
 
+function TDM.GetCitiesCount: Integer;
+begin
+  Result := FDConnection1.ExecSQLScalar('SELECT COUNT(*) FROM cities');
+end;
+
 procedure TDM.InitializeDatabase;
+const SQLInitTables = SQLInitMachines + SQLInitCities;
 begin
   FDConnection1.Open;
-  FDConnection1.ExecSQL(
-    'CREATE TABLE IF NOT EXISTS machines (' +
-    'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-    'brand TEXT NOT NULL, ' +
-    'model TEXT NOT NULL, ' +
-    'vin TEXT NOT NULL, ' +
-    'machine_kind INTEGER NOT NULL)'
-  );
-  FDConnection1.Close;
+  try
+    FDConnection1.ExecSQL(SQLInitTables);
+    if GetCitiesCount = 0 then
+      FDConnection1.ExecSQL(SQLInsertCities);
+  finally
+    FDConnection1.Close;
+  end;
 end;
 
 procedure TDM.InsertMachine(AMachine: TMachine);
@@ -93,6 +133,25 @@ begin
     end;
 end;
 
+function TDM.GetCities: TList<TCity>;
+var Cities: TList<TCity>;
+begin
+  Cities := TList<TCity>.Create;
+  FDQuerySelect.Close;
+  FDQuerySelect.SQL.Text := 'SELECT id, city, latitude, longitude FROM cities ORDER BY city';
+  FDQuerySelect.Open;
+  while not FDQuerySelect.Eof do
+    begin
+      Cities.Add(TCity.Create(
+        FDQuerySelect.FieldByName('id').AsInteger,
+        FDQuerySelect.FieldByName('city').AsString,
+        FDQuerySelect.FieldByName('latitude').AsFloat,
+        FDQuerySelect.FieldByName('longitude').AsFloat
+      ));
+      FDQuerySelect.Next;
+    end;
+  Result := Cities;
+end;
 
 function TDM.GetMachines: TList<TMachine>;
 var
